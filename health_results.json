@@ -1,32 +1,32 @@
 [
   {
     "customer_name": "Globex Manufacturing",
-    "health_score": "Red",
-    "reasoning": "1 open high/urgent-priority case(s); 2 open jira issue(s); usage declining over the last 7 days vs. the 30-day trend.",
-    "recommended_action": "Escalate to CS leadership and get an executive check-in on the calendar before renewal."
+    "health_score": "Yellow",
+    "reasoning": "15 test cases created in the last 7 days (10-20 range).",
+    "recommended_action": "Proactively check in with the customer and monitor usage over the next reporting period."
   },
   {
     "customer_name": "Northwind Retail",
     "health_score": "Green",
-    "reasoning": "No open high-priority cases or issues, and usage is stable.",
+    "reasoning": "68 test cases created in the last 7 days (21+ range).",
     "recommended_action": "No action needed beyond the standard quarterly check-in."
   },
   {
     "customer_name": "BrightPath Healthcare",
-    "health_score": "Yellow",
-    "reasoning": "2 open case(s).",
-    "recommended_action": "Proactively check in with the customer and monitor usage over the next reporting period."
+    "health_score": "Green",
+    "reasoning": "76 test cases created in the last 7 days (21+ range).",
+    "recommended_action": "No action needed beyond the standard quarterly check-in."
   },
   {
     "customer_name": "Vertex Financial",
-    "health_score": "Red",
-    "reasoning": "2 open case(s); 1 open jira issue(s); usage declining over the last 7 days vs. the 30-day trend.",
-    "recommended_action": "Escalate to CS leadership and get an executive check-in on the calendar before renewal."
+    "health_score": "Green",
+    "reasoning": "22 test cases created in the last 7 days (21+ range).",
+    "recommended_action": "No action needed beyond the standard quarterly check-in."
   },
   {
     "customer_name": "Acme Logistics",
-    "health_score": "Red",
-    "reasoning": "2 open high/urgent-priority case(s); 2 open jira issue(s); usage declining over the last 7 days vs. the 30-day trend.",
-    "recommended_action": "Escalate to CS leadership and get an executive check-in on the calendar before renewal."
+    "health_score": "Yellow",
+    "reasoning": "18 test cases created in the last 7 days (10-20 range).",
+    "recommended_action": "Proactively check in with the customer and monitor usage over the next reporting period."
   }
 ]

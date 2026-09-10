@@ -2,11 +2,19 @@
 
 Reads customers.json, issues_data.json, and metrics.json, and writes
 health_results.json (health_score, reasoning, recommended_action per
-customer) using fixed weights instead of an LLM call. This replaces the
-Claude-authored, hand-written analysis with something that can run
-automatically in CI on every scheduled run - the tradeoff is mechanical
-reasoning ("2 open high-priority cases") instead of an LLM's more nuanced
-read (e.g. weighing a near-term renewal date alongside the numbers).
+customer). Two rules, no LLM call:
+
+  1. Usage tier, from test_cases_created (metrics.json):
+       - 0 test cases created in the 7-day OR the 30-day window -> Red
+       - 1-9 created in the 7-day window                        -> Red
+       - 10-20 created in the 7-day window                      -> Yellow
+       - 21+ created in the 7-day window                        -> Green
+  2. Jira override: any open (not Done/Closed/Resolved) Jira issue with
+     priority High/Urgent -> automatic Red, regardless of the usage tier.
+
+customers.json's support-case priority is no longer part of scoring - it's
+still shown in the report for context, but the two rules above are the
+whole algorithm now.
 
 Run standalone: `python rule_based_scorer.py`. Also wired into
 .github/workflows/health-report.yml to run automatically after the
@@ -28,45 +36,45 @@ def _load_json(path: str):
 
 
 def score_account(account: dict, jira_issues: list, metrics: dict) -> dict:
-    """Weigh open-case severity, open Jira issues, and usage trend into a
-    Green/Yellow/Red score - the same three signals the earlier
-    LLM-based SYSTEM_PROMPT scored on, applied as fixed rules instead."""
-    cases = account.get("cases", [])
-    open_cases = [c for c in cases if (c.get("status") or "").lower() not in ("closed", "resolved")]
-    high_priority_open = [c for c in open_cases if (c.get("priority") or "").lower() in ("high", "urgent")]
-    open_jira = [i for i in jira_issues if (i.get("status") or "").lower() not in ("done", "closed", "resolved")]
-    declining = (metrics.get("trend") or "").lower() == "declining"
+    """Usage tier (test_cases_created) + a Jira high-priority override.
+    See module docstring for the exact thresholds."""
+    created_7d = metrics.get("test_cases_created_7d", 0)
+    created_30d = metrics.get("test_cases_created_30d", 0)
 
-    risk = 0
-    reasons = []
-    if high_priority_open:
-        risk += 2
-        reasons.append(f"{len(high_priority_open)} open high/urgent-priority case(s)")
-    elif len(open_cases) >= 2:
-        risk += 1
-        reasons.append(f"{len(open_cases)} open case(s)")
-    if open_jira:
-        risk += 1
-        reasons.append(f"{len(open_jira)} open Jira issue(s)")
-    if declining:
-        risk += 2
-        reasons.append("usage declining over the last 7 days vs. the 30-day trend")
-
-    if risk >= 4:
+    if created_7d == 0 or created_30d == 0:
         score = "Red"
-        action = "Escalate to CS leadership and get an executive check-in on the calendar before renewal."
-    elif risk >= 1:
+        zero_window = "7-day" if created_7d == 0 else "30-day"
+        reasons = [f"0 test cases created in the {zero_window} window"]
+    elif created_7d < 10:
+        score = "Red"
+        reasons = [f"only {created_7d} test cases created in the last 7 days (critically low)"]
+    elif created_7d <= 20:
         score = "Yellow"
-        action = "Proactively check in with the customer and monitor usage over the next reporting period."
+        reasons = [f"{created_7d} test cases created in the last 7 days (10-20 range)"]
     else:
         score = "Green"
+        reasons = [f"{created_7d} test cases created in the last 7 days (21+ range)"]
+
+    high_priority_jira = [
+        i
+        for i in jira_issues
+        if (i.get("priority") or "").lower() in ("high", "urgent")
+        and (i.get("status") or "").lower() not in ("done", "closed", "resolved")
+    ]
+    if high_priority_jira:
+        score = "Red"
+        reasons.append(
+            f"{len(high_priority_jira)} open high/urgent-priority Jira ticket(s) - automatic escalation"
+        )
+
+    if score == "Red":
+        action = "Escalate to CS leadership and get an executive check-in on the calendar before renewal."
+    elif score == "Yellow":
+        action = "Proactively check in with the customer and monitor usage over the next reporting period."
+    else:
         action = "No action needed beyond the standard quarterly check-in."
 
-    reasoning = (
-        "; ".join(reasons).capitalize() + "."
-        if reasons
-        else "No open high-priority cases or issues, and usage is stable."
-    )
+    reasoning = "; ".join(reasons).capitalize() + "."
     return {"health_score": score, "reasoning": reasoning, "recommended_action": action}
 
 
