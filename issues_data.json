@@ -13,14 +13,7 @@
       "priority": "Medium"
     }
   ],
-  "Northwind Retail": [
-    {
-      "key": "KAN-11",
-      "summary": "Northwind Retail: Payment gateway down",
-      "status": "To Do",
-      "priority": "High"
-    }
-  ],
+  "Northwind Retail": [],
   "BrightPath Healthcare": [
     {
       "key": "KAN-9",
