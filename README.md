@@ -125,6 +125,8 @@ uses that flow with a stored refresh token:
 8. Run `python scripts/sf_oauth_authorize.py url`, open the printed URL in your browser, log in, and approve.
 9. Copy the `code=` value from the redirect URL and run `python scripts/sf_oauth_authorize.py exchange <code>` — this writes `SF_REFRESH_TOKEN` into `.env`.
 
+**This org also rotates the refresh token on every use** — Salesforce returns a brand-new `refresh_token` on every `refresh_token` grant call and invalidates the old one. `salesforce_client.py` captures the rotated token and rewrites `SF_REFRESH_TOKEN` in `.env` automatically for local runs. For the GitHub Actions workflow (no `.env` file there), it goes further: `scripts/refresh_salesforce_data.py` exposes the rotated token via `$GITHUB_OUTPUT`, and a workflow step updates the `SF_REFRESH_TOKEN` *secret* using a separate fine-grained PAT (`GH_SECRETS_PAT`, scoped to just this repo's Secrets: read/write — the default `GITHUB_TOKEN` can't modify secrets). Without that PAT secret, the workflow's Salesforce refresh works exactly once after each manual re-authorization and then silently falls back to the committed `accounts_data.json` until you re-run `sf_oauth_authorize.py` and update the secret by hand.
+
 ## Running it
 
 Render the report from the current JSON snapshots (no credentials needed):

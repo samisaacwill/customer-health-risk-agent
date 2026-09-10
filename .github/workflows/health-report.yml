@@ -31,6 +31,7 @@ jobs:
       - run: pip install -r requirements.txt
 
       - name: Refresh Salesforce data (skipped if SF_* secrets aren't set)
+        id: refresh_sf
         continue-on-error: true
         env:
           SF_CONSUMER_KEY: ${{ secrets.SF_CONSUMER_KEY }}
@@ -43,6 +44,21 @@ jobs:
           else
             echo "SF_* secrets not set - using committed accounts_data.json"
           fi
+
+      # This org rotates the Salesforce refresh token on every use (see
+      # salesforce_client.py) - the step above exposes the new one via
+      # $GITHUB_OUTPUT when that happens. The default GITHUB_TOKEN can't
+      # write Actions secrets, so this uses a separate fine-grained PAT
+      # (GH_SECRETS_PAT, scoped to this repo's Secrets: read/write) to keep
+      # SF_REFRESH_TOKEN current for the next run.
+      - name: Persist rotated Salesforce refresh token (if it rotated)
+        if: steps.refresh_sf.outputs.new_refresh_token != ''
+        env:
+          GH_TOKEN: ${{ secrets.GH_SECRETS_PAT }}
+          NEW_TOKEN: ${{ steps.refresh_sf.outputs.new_refresh_token }}
+        run: |
+          gh secret set SF_REFRESH_TOKEN --repo "${{ github.repository }}" --body "$NEW_TOKEN"
+          echo "SF_REFRESH_TOKEN secret updated with the rotated token."
 
       - name: Refresh Jira data (skipped if JIRA_* secrets aren't set)
         continue-on-error: true
