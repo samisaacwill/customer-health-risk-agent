@@ -53,6 +53,7 @@ jobs:
       # SF_REFRESH_TOKEN current for the next run.
       - name: Persist rotated Salesforce refresh token (if it rotated)
         if: steps.refresh_sf.outputs.new_refresh_token != ''
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GH_SECRETS_PAT }}
           NEW_TOKEN: ${{ steps.refresh_sf.outputs.new_refresh_token }}
