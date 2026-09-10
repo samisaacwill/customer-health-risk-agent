@@ -1,11 +1,19 @@
 [
   {
-    "name": "Acme Logistics",
-    "industry": "Shipping",
-    "renewal_date": null,
+    "name": "Globex Manufacturing",
+    "industry": "Manufacturing",
+    "renewal_date": "2026-12-30",
     "cases": [
-      {"subject": "Unable to schedule nightly test runs", "status": "Working", "priority": "High"},
-      {"subject": "Test execution API returning 500 errors", "status": "New", "priority": "High"}
+      {
+        "subject": "Login failures for 3 users",
+        "status": "Escalated",
+        "priority": "High"
+      },
+      {
+        "subject": "Dashboard fails to load for admin users",
+        "status": "New",
+        "priority": "Medium"
+      }
     ]
   },
   {
@@ -15,20 +23,20 @@
     "cases": []
   },
   {
-    "name": "Globex Manufacturing",
-    "industry": "Manufacturing",
-    "renewal_date": "2026-12-30",
-    "cases": [
-      {"subject": "Login failures for 3 users", "status": "Escalated", "priority": "High"},
-      {"subject": "Dashboard fails to load for admin users", "status": "New", "priority": "Medium"}
-    ]
-  },
-  {
     "name": "BrightPath Healthcare",
     "industry": "Healthcare",
     "renewal_date": "2026-11-30",
     "cases": [
-      {"subject": "Question about seat count", "status": "Working", "priority": "Low"}
+      {
+        "subject": "Test1_update",
+        "status": "New",
+        "priority": "Medium"
+      },
+      {
+        "subject": "Question about seat count",
+        "status": "Working",
+        "priority": "Low"
+      }
     ]
   },
   {
@@ -36,8 +44,33 @@
     "industry": "Finance",
     "renewal_date": "2026-11-02",
     "cases": [
-      {"subject": "Renewal terms clarification needed", "status": "Working", "priority": "Medium"},
-      {"subject": "CI/CD integration broken after recent update", "status": "New", "priority": "Medium"}
+      {
+        "subject": "Renewal terms clarification needed",
+        "status": "Working",
+        "priority": "Medium"
+      },
+      {
+        "subject": "CI/CD integration broken after recent update",
+        "status": "New",
+        "priority": "Medium"
+      }
+    ]
+  },
+  {
+    "name": "Acme Logistics",
+    "industry": "Shipping",
+    "renewal_date": null,
+    "cases": [
+      {
+        "subject": "Unable to schedule nightly test runs",
+        "status": "Working",
+        "priority": "High"
+      },
+      {
+        "subject": "Test execution API returning 500 errors",
+        "status": "New",
+        "priority": "High"
+      }
     ]
   }
 ]

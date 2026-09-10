@@ -1,8 +1,8 @@
 [
   {
-    "customer_name": "Acme Logistics",
+    "customer_name": "Globex Manufacturing",
     "health_score": "Red",
-    "reasoning": "2 open high/urgent-priority case(s); 2 open jira issue(s); usage declining over the last 7 days vs. the 30-day trend.",
+    "reasoning": "1 open high/urgent-priority case(s); 2 open jira issue(s); usage declining over the last 7 days vs. the 30-day trend.",
     "recommended_action": "Escalate to CS leadership and get an executive check-in on the calendar before renewal."
   },
   {
@@ -12,21 +12,21 @@
     "recommended_action": "No action needed beyond the standard quarterly check-in."
   },
   {
-    "customer_name": "Globex Manufacturing",
-    "health_score": "Red",
-    "reasoning": "1 open high/urgent-priority case(s); 2 open jira issue(s); usage declining over the last 7 days vs. the 30-day trend.",
-    "recommended_action": "Escalate to CS leadership and get an executive check-in on the calendar before renewal."
-  },
-  {
     "customer_name": "BrightPath Healthcare",
-    "health_score": "Green",
-    "reasoning": "No open high-priority cases or issues, and usage is stable.",
-    "recommended_action": "No action needed beyond the standard quarterly check-in."
+    "health_score": "Yellow",
+    "reasoning": "2 open case(s).",
+    "recommended_action": "Proactively check in with the customer and monitor usage over the next reporting period."
   },
   {
     "customer_name": "Vertex Financial",
     "health_score": "Red",
     "reasoning": "2 open case(s); 1 open jira issue(s); usage declining over the last 7 days vs. the 30-day trend.",
+    "recommended_action": "Escalate to CS leadership and get an executive check-in on the calendar before renewal."
+  },
+  {
+    "customer_name": "Acme Logistics",
+    "health_score": "Red",
+    "reasoning": "2 open high/urgent-priority case(s); 2 open jira issue(s); usage declining over the last 7 days vs. the 30-day trend.",
     "recommended_action": "Escalate to CS leadership and get an executive check-in on the calendar before renewal."
   }
 ]

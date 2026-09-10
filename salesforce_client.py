@@ -8,9 +8,20 @@ since Summer '23 block SOAP login and the legacy OAuth username-password
 grant by default, and the latter is incompatible with mandatory MFA anyway.
 The refresh token is obtained once via scripts/sf_oauth_authorize.py (see
 README) and then used here to mint short-lived access tokens on each run.
+
+This org also ROTATES the refresh token on every use: each refresh_token
+grant response includes a brand-new refresh_token and immediately
+invalidates the one that was sent. get_client() detects this and, when a
+local .env file exists, rewrites SF_REFRESH_TOKEN in place so the next run
+keeps working. new_refresh_token is also returned/exposed so callers (e.g.
+scripts/refresh_salesforce_data.py) can persist it somewhere else too, such
+as a CI secret store, where there's no .env file to write to.
 """
 
 import os
+import re
+from pathlib import Path
+from typing import Optional
 
 import requests
 from simple_salesforce import Salesforce
@@ -23,12 +34,33 @@ CUSTOMER_NAMES = [
     "Vertex Financial",
 ]
 
+ENV_PATH = Path(__file__).resolve().parent / ".env"
+
+# Set to the rotated refresh token after get_client() runs, if the org
+# rotated it and it differs from what was already stored. None otherwise.
+new_refresh_token: Optional[str] = None
+
+
+def _persist_refresh_token_to_env_file(token: str) -> bool:
+    """Rewrite SF_REFRESH_TOKEN in .env in place. Returns True if written."""
+    if not ENV_PATH.exists():
+        return False
+    text = ENV_PATH.read_text()
+    pattern = re.compile(r"^SF_REFRESH_TOKEN=.*$", re.MULTILINE)
+    line = f"SF_REFRESH_TOKEN={token}"
+    text = pattern.sub(line, text, count=1) if pattern.search(text) else text.rstrip("\n") + f"\n{line}\n"
+    ENV_PATH.write_text(text)
+    return True
+
 
 def _get_access_token() -> tuple[str, str]:
     """Exchange the stored refresh token for a fresh access token.
 
-    Returns (access_token, instance_url).
+    Returns (access_token, instance_url). Also captures a rotated refresh
+    token into the module-level new_refresh_token, and persists it to .env
+    when that file exists (i.e. local runs, not CI).
     """
+    global new_refresh_token
     domain = os.environ.get("SF_DOMAIN", "login")
     consumer_key = os.environ["SF_CONSUMER_KEY"]
     consumer_secret = os.environ["SF_CONSUMER_SECRET"]
@@ -47,6 +79,13 @@ def _get_access_token() -> tuple[str, str]:
     )
     response.raise_for_status()
     data = response.json()
+
+    rotated = data.get("refresh_token")
+    if rotated and rotated != refresh_token:
+        new_refresh_token = rotated
+        os.environ["SF_REFRESH_TOKEN"] = rotated
+        _persist_refresh_token_to_env_file(rotated)
+
     return data["access_token"], data["instance_url"]
 
 
