@@ -5,9 +5,10 @@ name: Customer Health Report
 #
 # Salesforce/Jira refresh steps only run if the corresponding repo secrets
 # are set (Settings > Secrets and variables > Actions) - otherwise they're
-# skipped and the report is re-rendered from whatever accounts_data.json /
-# issues_data.json is already committed. health_results.json (the health
-# analysis) is NOT regenerated automatically - see README.md for why.
+# skipped and scoring runs against whatever accounts_data.json /
+# issues_data.json is already committed. health_results.json is regenerated
+# every run by rule_based_scorer.py - a free, deterministic scorer with no
+# LLM call - see README.md for the tradeoff vs. an LLM-authored analysis.
 
 on:
   schedule:
@@ -56,6 +57,9 @@ jobs:
             echo "JIRA_* secrets not set - using committed issues_data.json"
           fi
 
+      - name: Regenerate health analysis (free, rule-based - no API key)
+        run: python rule_based_scorer.py
+
       - name: Render (and optionally email) the report
         env:
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
@@ -67,6 +71,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/index.html accounts_data.json issues_data.json
+          git add docs/index.html accounts_data.json issues_data.json health_results.json
           git diff --cached --quiet || git commit -m "Update customer health report [automated]"
           git push
