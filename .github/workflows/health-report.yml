@@ -3,12 +3,14 @@ name: Customer Health Report
 # Runs the free, no-Claude-API pipeline on a schedule and publishes the
 # refreshed report to GitHub Pages (docs/index.html).
 #
-# Salesforce/Jira refresh steps only run if the corresponding repo secrets
-# are set (Settings > Secrets and variables > Actions) - otherwise they're
-# skipped and scoring runs against whatever accounts_data.json /
-# issues_data.json is already committed. health_results.json is regenerated
-# every run by rule_based_scorer.py - a free, deterministic scorer with no
-# LLM call - see README.md for the tradeoff vs. an LLM-authored analysis.
+# The Jira refresh step only runs if the JIRA_* secrets are set
+# (Settings > Secrets and variables > Actions) - otherwise it's skipped
+# and scoring runs against whatever issues_data.json is already
+# committed. customers.json is a plain static file, hand-edited directly
+# - nothing refreshes it automatically. health_results.json is
+# regenerated every run by rule_based_scorer.py - a free, deterministic
+# scorer with no LLM call - see README.md for the tradeoff vs. an
+# LLM-authored analysis.
 
 on:
   schedule:
@@ -29,26 +31,6 @@ jobs:
           python-version: "3.11"
 
       - run: pip install -r requirements.txt
-
-      # This org rotates the Salesforce refresh token on every use (see
-      # salesforce_client.py): each refresh_token grant issues a new one and
-      # invalidates the old one. There's no .env file here to persist it to,
-      # so this step works exactly once after each manual re-authorization -
-      # see README.md "Salesforce OAuth setup" for how to redo that (2
-      # commands) and update the SF_REFRESH_TOKEN secret.
-      - name: Refresh Salesforce data (skipped if SF_* secrets aren't set)
-        continue-on-error: true
-        env:
-          SF_CONSUMER_KEY: ${{ secrets.SF_CONSUMER_KEY }}
-          SF_CONSUMER_SECRET: ${{ secrets.SF_CONSUMER_SECRET }}
-          SF_DOMAIN: ${{ secrets.SF_DOMAIN }}
-          SF_REFRESH_TOKEN: ${{ secrets.SF_REFRESH_TOKEN }}
-        run: |
-          if [ -n "$SF_CONSUMER_KEY" ]; then
-            python scripts/refresh_salesforce_data.py
-          else
-            echo "SF_* secrets not set - using committed accounts_data.json"
-          fi
 
       - name: Refresh Jira data (skipped if JIRA_* secrets aren't set)
         continue-on-error: true
@@ -77,6 +59,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/index.html accounts_data.json issues_data.json health_results.json
+          git add docs/index.html issues_data.json health_results.json
           git diff --cached --quiet || git commit -m "Update customer health report [automated]"
           git push

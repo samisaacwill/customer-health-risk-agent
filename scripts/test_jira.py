@@ -1,6 +1,6 @@
 """Standalone smoke test: connect to Jira and fetch + match issues to customers.
 
-Does not touch Salesforce, Claude, or email.
+Does not touch customers.json, Claude, or email.
 """
 
 import sys

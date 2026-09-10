@@ -1,7 +1,7 @@
 """Refresh issues_data.json from live Jira data.
 
 Run this whenever Jira issues change and you want the report to reflect
-it. It does not touch Salesforce, health_results.json, or email.
+it. It does not touch customers.json, health_results.json, or email.
 """
 
 import json

@@ -1,6 +1,6 @@
 """Free, deterministic health scorer - no LLM, no API key, no cost.
 
-Reads accounts_data.json, issues_data.json, and metrics.json, and writes
+Reads customers.json, issues_data.json, and metrics.json, and writes
 health_results.json (health_score, reasoning, recommended_action per
 customer) using fixed weights instead of an LLM call. This replaces the
 Claude-authored, hand-written analysis with something that can run
@@ -10,13 +10,13 @@ read (e.g. weighing a near-term renewal date alongside the numbers).
 
 Run standalone: `python rule_based_scorer.py`. Also wired into
 .github/workflows/health-report.yml to run automatically after the
-Salesforce/Jira data-refresh steps and before the report is rendered.
+Jira data-refresh step and before the report is rendered.
 """
 
 import json
 import os
 
-ACCOUNTS_PATH = os.path.join(os.path.dirname(__file__), "accounts_data.json")
+ACCOUNTS_PATH = os.path.join(os.path.dirname(__file__), "customers.json")
 ISSUES_PATH = os.path.join(os.path.dirname(__file__), "issues_data.json")
 METRICS_PATH = os.path.join(os.path.dirname(__file__), "metrics.json")
 HEALTH_RESULTS_PATH = os.path.join(os.path.dirname(__file__), "health_results.json")

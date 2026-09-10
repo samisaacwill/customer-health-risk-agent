@@ -3,16 +3,21 @@
 Uses the Jira Cloud REST API v3 with email + API token (basic auth).
 Issues are matched to customers by checking whether the customer's name
 appears in the issue summary text (no custom Jira field required for
-this demo).
+this demo). The customer list is read from customers.json.
 """
 
+import json
 import os
 
 import requests
 
-from salesforce_client import CUSTOMER_NAMES
-
 PROJECT_KEY = "KAN"
+CUSTOMERS_PATH = os.path.join(os.path.dirname(__file__), "customers.json")
+
+
+def _customer_names() -> list[str]:
+    with open(CUSTOMERS_PATH) as f:
+        return [c["name"] for c in json.load(f)]
 
 
 def _auth_and_base_url() -> tuple[str, tuple[str, str]]:
@@ -62,10 +67,11 @@ def fetch_project_issues() -> list[dict]:
 
 def match_issues_to_customers(issues: list[dict]) -> dict[str, list[dict]]:
     """Group issues by customer, matching on customer name in the summary."""
-    matched: dict[str, list[dict]] = {name: [] for name in CUSTOMER_NAMES}
+    customer_names = _customer_names()
+    matched: dict[str, list[dict]] = {name: [] for name in customer_names}
     for issue in issues:
         summary = issue.get("summary") or ""
-        for name in CUSTOMER_NAMES:
+        for name in customer_names:
             if name.lower() in summary.lower():
                 matched[name].append(issue)
     return matched
