@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Customer Health & Risk Report</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f8f9fa;
+    color: #202124;
+    margin: 0;
+    padding: 32px 16px;
+  }
+  .container { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 24px; margin-bottom: 4px; }
+  .subtitle { color: #5f6368; margin-top: 0; margin-bottom: 24px; }
+  .summary { display: flex; gap: 12px; margin-bottom: 24px; }
+  .summary span {
+    padding: 6px 14px; border-radius: 16px; font-size: 14px; font-weight: 600;
+  }
+  .card {
+    background: #fff;
+    border-left: 5px solid #9aa0a6;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; }
+  .card-header h2 { margin: 0; font-size: 19px; }
+  .badge { padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 700; }
+  .meta { color: #5f6368; font-size: 13px; margin: 6px 0 14px; }
+  .metrics {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 24px;
+    background: #f8f9fa; border-radius: 6px; padding: 12px 16px; margin-bottom: 14px; font-size: 13px;
+  }
+  .metric-label { display: block; color: #5f6368; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .reasoning, .action { font-size: 14px; margin: 8px 0; }
+  details { margin-top: 10px; font-size: 13px; }
+  summary { cursor: pointer; color: #1a73e8; }
+  ul { margin: 8px 0; padding-left: 20px; }
+  .muted { color: #9aa0a6; list-style: none; margin-left: -20px; }
+  footer { color: #9aa0a6; font-size: 12px; text-align: center; margin-top: 32px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Customer Health &amp; Risk Report</h1>
+    <p class="subtitle">Generated 2026-09-10 18:24 UTC</p>
+    <div class="summary">
+      <span style="background: #e6f4ea; color: #1e7e34;">2 Green</span>
+      <span style="background: #fff8e1; color: #b06f00;">0 Yellow</span>
+      <span style="background: #fce8e6; color: #c5221f;">3 Red</span>
+    </div>
+    
+    <div class="card" style="border-left-color: #ea4335;">
+      <div class="card-header">
+        <h2>Acme Logistics</h2>
+        <span class="badge" style="background: #fce8e6; color: #c5221f; border: 1px solid #ea4335;">
+          Red
+        </span>
+      </div>
+      <div class="meta">
+        Shipping &middot;
+        Renewal: Unknown &middot;
+        2 open case(s), 2 high/urgent
+      </div>
+      
+        <div class="metrics">
+          <div><span class="metric-label">Test cases (7d / 30d)</span>
+            18 / 210</div>
+          <div><span class="metric-label">Dry runs (7d / 30d)</span>
+            25 / 340</div>
+          <div><span class="metric-label">Active users (7d / 30d)</span>
+            6 / 18</div>
+          <div><span class="metric-label">Trend</span> declining</div>
+        </div>
+        
+      <p class="reasoning"><strong>Analysis:</strong> Both open cases are High priority and are directly mirrored by two unresolved Jira issues (KAN-4, KAN-5), and usage has dropped sharply — active users down from 18 to 6 and test cases created down to a 7-day pace of 18 versus a 210/30d trend.</p>
+      <p class="action"><strong>Recommended action:</strong> Escalate KAN-4 and KAN-5 to engineering as top priority, and have CS reach out proactively before usage erodes further.</p>
+      <details>
+        <summary>Support cases (2)</summary>
+        <ul><li><strong>Unable to schedule nightly test runs</strong> &mdash; Working / High</li><li><strong>Test execution API returning 500 errors</strong> &mdash; New / High</li></ul>
+      </details>
+      <details>
+        <summary>Jira issues (2)</summary>
+        <ul><li><strong>KAN-5</strong> Acme Logistics: Fix nightly test run scheduling &mdash; In Progress</li><li><strong>KAN-4</strong> Acme Logistics: Investigate API 500 errors on test execution &mdash; To Do</li></ul>
+      </details>
+    </div>
+    
+    <div class="card" style="border-left-color: #34a853;">
+      <div class="card-header">
+        <h2>Northwind Retail</h2>
+        <span class="badge" style="background: #e6f4ea; color: #1e7e34; border: 1px solid #34a853;">
+          Green
+        </span>
+      </div>
+      <div class="meta">
+        Retail &middot;
+        Renewal: 2027-01-30 &middot;
+        No open support cases
+      </div>
+      
+        <div class="metrics">
+          <div><span class="metric-label">Test cases (7d / 30d)</span>
+            68 / 275</div>
+          <div><span class="metric-label">Dry runs (7d / 30d)</span>
+            105 / 430</div>
+          <div><span class="metric-label">Active users (7d / 30d)</span>
+            24 / 25</div>
+          <div><span class="metric-label">Trend</span> stable</div>
+        </div>
+        
+      <p class="reasoning"><strong>Analysis:</strong> No open support cases, no open Jira issues, and 7-day usage is fully in line with the 30-day trend.</p>
+      <p class="action"><strong>Recommended action:</strong> No action needed — continue standard quarterly check-ins.</p>
+      <details>
+        <summary>Support cases (0)</summary>
+        <ul><li class='muted'>None</li></ul>
+      </details>
+      <details>
+        <summary>Jira issues (0)</summary>
+        <ul><li class='muted'>None</li></ul>
+      </details>
+    </div>
+    
+    <div class="card" style="border-left-color: #ea4335;">
+      <div class="card-header">
+        <h2>Globex Manufacturing</h2>
+        <span class="badge" style="background: #fce8e6; color: #c5221f; border: 1px solid #ea4335;">
+          Red
+        </span>
+      </div>
+      <div class="meta">
+        Manufacturing &middot;
+        Renewal: 2026-12-30 &middot;
+        2 open case(s), 1 high/urgent
+      </div>
+      
+        <div class="metrics">
+          <div><span class="metric-label">Test cases (7d / 30d)</span>
+            15 / 180</div>
+          <div><span class="metric-label">Dry runs (7d / 30d)</span>
+            20 / 290</div>
+          <div><span class="metric-label">Active users (7d / 30d)</span>
+            5 / 15</div>
+          <div><span class="metric-label">Trend</span> declining</div>
+        </div>
+        
+      <p class="reasoning"><strong>Analysis:</strong> An Escalated High-priority login-failure case and a second unresolved dashboard bug are both still open in Jira (KAN-6, KAN-7), and usage has fallen sharply — active users down from 15 to 5 over the last 7 days.</p>
+      <p class="action"><strong>Recommended action:</strong> Treat KAN-7 (login failures) as top engineering priority and have CS communicate a fix timeline to the customer immediately.</p>
+      <details>
+        <summary>Support cases (2)</summary>
+        <ul><li><strong>Login failures for 3 users</strong> &mdash; Escalated / High</li><li><strong>Dashboard fails to load for admin users</strong> &mdash; New / Medium</li></ul>
+      </details>
+      <details>
+        <summary>Jira issues (2)</summary>
+        <ul><li><strong>KAN-7</strong> Globex Manufacturing: Resolve login failures (3 users) &mdash; In Progress</li><li><strong>KAN-6</strong> Globex Manufacturing: Admin dashboard load failure &mdash; To Do</li></ul>
+      </details>
+    </div>
+    
+    <div class="card" style="border-left-color: #34a853;">
+      <div class="card-header">
+        <h2>BrightPath Healthcare</h2>
+        <span class="badge" style="background: #e6f4ea; color: #1e7e34; border: 1px solid #34a853;">
+          Green
+        </span>
+      </div>
+      <div class="meta">
+        Healthcare &middot;
+        Renewal: 2026-11-30 &middot;
+        1 open case(s)
+      </div>
+      
+        <div class="metrics">
+          <div><span class="metric-label">Test cases (7d / 30d)</span>
+            76 / 310</div>
+          <div><span class="metric-label">Dry runs (7d / 30d)</span>
+            115 / 480</div>
+          <div><span class="metric-label">Active users (7d / 30d)</span>
+            27 / 28</div>
+          <div><span class="metric-label">Trend</span> stable</div>
+        </div>
+        
+      <p class="reasoning"><strong>Analysis:</strong> The only open case is a Low-priority licensing question that&#x27;s already resolved on the engineering side (KAN-9 is Done), and usage remains stable and in line with the 30-day trend.</p>
+      <p class="action"><strong>Recommended action:</strong> Close out the seat-count conversation with the customer; no further action needed.</p>
+      <details>
+        <summary>Support cases (1)</summary>
+        <ul><li><strong>Question about seat count</strong> &mdash; Working / Low</li></ul>
+      </details>
+      <details>
+        <summary>Jira issues (1)</summary>
+        <ul><li><strong>KAN-9</strong> BrightPath Healthcare: Confirm seat count with customer &mdash; Done</li></ul>
+      </details>
+    </div>
+    
+    <div class="card" style="border-left-color: #ea4335;">
+      <div class="card-header">
+        <h2>Vertex Financial</h2>
+        <span class="badge" style="background: #fce8e6; color: #c5221f; border: 1px solid #ea4335;">
+          Red
+        </span>
+      </div>
+      <div class="meta">
+        Finance &middot;
+        Renewal: 2026-11-02 &middot;
+        2 open case(s)
+      </div>
+      
+        <div class="metrics">
+          <div><span class="metric-label">Test cases (7d / 30d)</span>
+            22 / 250</div>
+          <div><span class="metric-label">Dry runs (7d / 30d)</span>
+            30 / 400</div>
+          <div><span class="metric-label">Active users (7d / 30d)</span>
+            7 / 22</div>
+          <div><span class="metric-label">Trend</span> declining</div>
+        </div>
+        
+      <p class="reasoning"><strong>Analysis:</strong> The CI/CD integration case (KAN-8) is still untouched in Jira (To Do) while usage has collapsed the most sharply of any account — active users down from 22 to 7 — and renewal lands in under two months (2026-11-02).</p>
+      <p class="action"><strong>Recommended action:</strong> Prioritize KAN-8 immediately given the near-term renewal date, and have an account exec engage on renewal terms in parallel.</p>
+      <details>
+        <summary>Support cases (2)</summary>
+        <ul><li><strong>Renewal terms clarification needed</strong> &mdash; Working / Medium</li><li><strong>CI/CD integration broken after recent update</strong> &mdash; New / Medium</li></ul>
+      </details>
+      <details>
+        <summary>Jira issues (1)</summary>
+        <ul><li><strong>KAN-8</strong> Vertex Financial: CI/CD integration broken post-update &mdash; To Do</li></ul>
+      </details>
+    </div>
+    
+    <footer>Generated automatically by the Customer Health &amp; Risk Detection agent.</footer>
+  </div>
+</body>
+</html>

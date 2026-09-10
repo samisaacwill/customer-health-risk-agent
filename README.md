@@ -1,2 +1,194 @@
-# NoteBookInterview
+# Customer Health & Risk Detection Agent
 
+A small demo agent that pulls customer data from **Salesforce** and **Jira**,
+blends it with product usage metrics, and turns it into a color-coded
+Customer Health & Risk report — published to **GitHub Pages** and
+optionally emailed.
+
+Built for 5 fictional customers: Acme Logistics, Northwind Retail, Globex
+Manufacturing, BrightPath Healthcare, and Vertex Financial.
+
+## What it does
+
+1. `accounts_data.json` holds each customer's Salesforce Account (renewal
+   date, industry) and open Cases (subject, status, priority).
+2. `issues_data.json` holds Jira issues from the `KAN` project, matched to
+   customers by looking for the customer's name in the issue summary.
+3. `metrics.json` holds product usage metrics (test cases created, dry
+   runs, active users — last 7 and 30 days).
+4. `health_results.json` holds the health analysis for each account —
+   **Green / Yellow / Red**, a short explanation, and a recommended next
+   step — weighing open-case severity, open Jira issues, and the usage
+   trend together.
+5. `health_agent.py` merges all four files and renders a single
+   color-coded HTML report (`docs/index.html`), then emails it via Gmail
+   SMTP if email credentials are configured.
+
+### Why four separate JSON files instead of live API calls + an LLM call every run
+
+The first version of this called the Salesforce, Jira, and Anthropic APIs
+live on every run. That's the right design for production, but for a demo
+it means every test run costs money (metered Claude API calls) and is
+fragile (Salesforce OAuth tokens, Jira availability). Splitting data
+collection from analysis fixes both:
+
+- `accounts_data.json` / `issues_data.json` are **snapshots** refreshed on
+  demand via `scripts/refresh_salesforce_data.py` / `scripts/refresh_jira_data.py`
+  (both still hit the real Salesforce/Jira APIs — see `salesforce_client.py`
+  / `jira_client.py`).
+- `health_results.json` holds the **health analysis** for the current
+  snapshot, written directly (by Claude, reasoning over the three data
+  files above) rather than called live via the Anthropic API on every
+  report render. Re-derive it by hand (or reintroduce a live API call)
+  whenever the underlying data changes meaningfully.
+- `health_agent.py` and `report_generator.py` just merge and render —
+  no external API calls, no cost, no flakiness, safe to run as often as
+  you like (e.g. on a GitHub Actions schedule).
+
+## Architecture
+
+```
+health_agent.py            Merges the 4 JSON files below and renders the report
+├── accounts_data.json     Salesforce Account + Case snapshot
+├── issues_data.json       Jira issues, matched to customers
+├── metrics.json           Product usage metrics (see metrics_data.py)
+├── health_results.json    Health analysis: score + reasoning + action per account
+└── report_generator.py    Renders docs/index.html (color-coded report)
+
+email_sender.py            Emails the HTML report via Gmail SMTP (optional)
+
+scripts/
+├── refresh_salesforce_data.py   Re-fetches accounts_data.json from live Salesforce
+├── refresh_jira_data.py         Re-fetches issues_data.json from live Jira
+├── test_salesforce.py           Standalone Salesforce connectivity check
+├── test_jira.py                 Standalone Jira connectivity check
+└── sf_oauth_authorize.py        One-time Salesforce OAuth setup (see below)
+
+salesforce_client.py       Salesforce auth (OAuth2 Authorization Code + refresh token) + queries
+jira_client.py              Jira Cloud REST API v3 queries + customer matching
+metrics_data.py             Generates/loads metrics.json (sample usage data)
+```
+
+`metrics.json` is deliberately kept as flat JSON (a plain array of one
+object per customer) so it can also be pointed at directly from Grafana
+Cloud's [Infinity data source plugin](https://grafana.com/grafana/plugins/yesoreyeram-infinity-datasource/)
+for a live dashboard, without any transformation.
+
+## Setup
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+# then fill in .env with real credentials — see below
+```
+
+### Credentials (`.env`)
+
+Only needed if you want to refresh `accounts_data.json` / `issues_data.json`
+from live Salesforce/Jira, or want the report emailed. `health_agent.py`
+itself runs with **no credentials at all** — it just reads the JSON files.
+
+Copy `.env.example` to `.env` and fill in:
+
+| Variable | Where to get it |
+|---|---|
+| `SF_CONSUMER_KEY`, `SF_CONSUMER_SECRET`, `SF_DOMAIN`, `SF_REFRESH_TOKEN` | From a Salesforce Connected App + a one-time browser authorization — see below. Only needed to run `scripts/refresh_salesforce_data.py`. |
+| `JIRA_BASE_URL`, `JIRA_EMAIL`, `JIRA_API_TOKEN` | Your Jira Cloud site URL and an [API token](https://id.atlassian.com/manage-profile/security/api-tokens). Requires a `KAN` project with issues whose summaries mention the customer names. Only needed to run `scripts/refresh_jira_data.py`. |
+| `EMAIL_SENDER`, `EMAIL_APP_PASSWORD`, `EMAIL_RECIPIENT` | A Gmail account with an [app password](https://myaccount.google.com/apppasswords) (not your normal password — requires 2-Step Verification enabled). Optional — `health_agent.py` skips emailing if these aren't set. |
+
+`.env` is git-ignored — never commit real credentials.
+
+#### Salesforce OAuth setup (only needed to refresh `accounts_data.json`)
+
+Many orgs created since Summer '23 (including Trailhead/trial orgs) block
+both the legacy SOAP login and the OAuth2 username-password flow by
+default, and require PKCE on the Authorization Code flow. This project
+uses that flow with a stored refresh token:
+
+1. In Salesforce, go to **Setup → App Manager → New Connected App**.
+2. Fill in the basic info (name, your email), check **Enable OAuth Settings**.
+3. Callback URL: `https://login.salesforce.com/services/oauth2/success` (unused directly, but required).
+4. Selected OAuth Scopes: add **Manage user data via APIs (api)** and **Perform requests at any time (refresh_token, offline_access)**.
+5. Save, wait a few minutes, then under **Manage Consumer Details** copy the **Consumer Key** / **Consumer Secret** into `SF_CONSUMER_KEY` / `SF_CONSUMER_SECRET`.
+6. Under **Manage → Edit Policies**: set **Permitted Users** to "All users may self-authorize", **IP Relaxation** to "Relax IP restrictions", and **Refresh Token Policy** to "Refresh token is valid until revoked" (a short expiry will break repeated/scheduled runs).
+7. Find your org's **My Domain** hostname (Setup → My Domain, or the URL you land on after logging in) and set `SF_DOMAIN` to it, e.g. `yourorg-dev-ed.my` (drop the trailing `.salesforce.com`).
+8. Run `python scripts/sf_oauth_authorize.py url`, open the printed URL in your browser, log in, and approve.
+9. Copy the `code=` value from the redirect URL and run `python scripts/sf_oauth_authorize.py exchange <code>` — this writes `SF_REFRESH_TOKEN` into `.env`.
+
+## Running it
+
+Render the report from the current JSON snapshots (no credentials needed):
+
+```bash
+python health_agent.py
+```
+
+To refresh the underlying data first:
+
+```bash
+python scripts/refresh_salesforce_data.py   # needs SF_* in .env
+python scripts/refresh_jira_data.py         # needs JIRA_* in .env
+python metrics_data.py                      # regenerates metrics.json
+python health_agent.py
+```
+
+If the Salesforce/Jira data changed meaningfully, re-derive
+`health_results.json` (health_score/reasoning/recommended_action per
+customer) before re-running the report.
+
+## Publishing the report to GitHub Pages
+
+Every run writes the report to `docs/index.html`. To publish it:
+
+1. Commit and push `docs/index.html`.
+2. In the GitHub repo, go to **Settings → Pages**, set **Source** to
+   `Deploy from a branch`, branch `main`, folder `/docs`, then save.
+3. GitHub will publish the report at
+   `https://<your-username>.github.io/<repo-name>/`.
+
+Re-running `health_agent.py` and pushing again updates the published page.
+
+### Automated scheduled runs (GitHub Actions)
+
+[.github/workflows/health-report.yml](.github/workflows/health-report.yml)
+runs the pipeline on a schedule (daily by default — change the cron
+expression for hourly) and commits the refreshed report automatically.
+It costs nothing to run: there's no Anthropic API call in the path, and
+the Salesforce/Jira refresh steps are skipped (falling back to whatever
+`accounts_data.json` / `issues_data.json` is already committed) unless
+you've added the matching secrets under **Settings → Secrets and
+variables → Actions** (same variable names as `.env.example`). It can
+also be triggered manually from the **Actions** tab (`workflow_dispatch`).
+
+Note: the workflow does **not** regenerate `health_results.json` — if
+Salesforce/Jira data changes meaningfully, re-derive the health analysis
+by hand (or reintroduce a live LLM call) and commit the update.
+
+## Project layout
+
+```
+.
+├── .github/workflows/health-report.yml  # scheduled GitHub Actions run
+├── health_agent.py          # merges the 4 JSON files below and renders the report
+├── accounts_data.json        # Salesforce snapshot
+├── issues_data.json          # Jira snapshot
+├── metrics.json               # generated sample usage data
+├── health_results.json        # health analysis (score/reasoning/action)
+├── report_generator.py
+├── email_sender.py
+├── salesforce_client.py
+├── jira_client.py
+├── metrics_data.py
+├── scripts/
+│   ├── refresh_salesforce_data.py
+│   ├── refresh_jira_data.py
+│   ├── test_salesforce.py
+│   ├── test_jira.py
+│   └── sf_oauth_authorize.py
+├── docs/index.html            # generated report (published via GitHub Pages)
+├── requirements.txt
+├── .env.example
+└── .env                       # your real credentials (git-ignored)
+```

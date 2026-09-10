@@ -1,0 +1,72 @@
+name: Customer Health Report
+
+# Runs the free, no-Claude-API pipeline on a schedule and publishes the
+# refreshed report to GitHub Pages (docs/index.html).
+#
+# Salesforce/Jira refresh steps only run if the corresponding repo secrets
+# are set (Settings > Secrets and variables > Actions) - otherwise they're
+# skipped and the report is re-rendered from whatever accounts_data.json /
+# issues_data.json is already committed. health_results.json (the health
+# analysis) is NOT regenerated automatically - see README.md for why.
+
+on:
+  schedule:
+    - cron: "0 13 * * *" # daily at 13:00 UTC - change to "0 * * * *" for hourly
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      - name: Refresh Salesforce data (skipped if SF_* secrets aren't set)
+        continue-on-error: true
+        env:
+          SF_CONSUMER_KEY: ${{ secrets.SF_CONSUMER_KEY }}
+          SF_CONSUMER_SECRET: ${{ secrets.SF_CONSUMER_SECRET }}
+          SF_DOMAIN: ${{ secrets.SF_DOMAIN }}
+          SF_REFRESH_TOKEN: ${{ secrets.SF_REFRESH_TOKEN }}
+        run: |
+          if [ -n "$SF_CONSUMER_KEY" ]; then
+            python scripts/refresh_salesforce_data.py
+          else
+            echo "SF_* secrets not set - using committed accounts_data.json"
+          fi
+
+      - name: Refresh Jira data (skipped if JIRA_* secrets aren't set)
+        continue-on-error: true
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          if [ -n "$JIRA_BASE_URL" ]; then
+            python scripts/refresh_jira_data.py
+          else
+            echo "JIRA_* secrets not set - using committed issues_data.json"
+          fi
+
+      - name: Render (and optionally email) the report
+        env:
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
+        run: python health_agent.py
+
+      - name: Commit refreshed data/report if anything changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/index.html accounts_data.json issues_data.json
+          git diff --cached --quiet || git commit -m "Update customer health report [automated]"
+          git push

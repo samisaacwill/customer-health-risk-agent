@@ -1,0 +1,52 @@
+[
+  {
+    "customer_name": "Acme Logistics",
+    "trend": "declining",
+    "test_cases_created_7d": 18,
+    "test_cases_created_30d": 210,
+    "dry_runs_7d": 25,
+    "dry_runs_30d": 340,
+    "active_users_7d": 6,
+    "active_users_30d": 18
+  },
+  {
+    "customer_name": "Northwind Retail",
+    "trend": "stable",
+    "test_cases_created_7d": 68,
+    "test_cases_created_30d": 275,
+    "dry_runs_7d": 105,
+    "dry_runs_30d": 430,
+    "active_users_7d": 24,
+    "active_users_30d": 25
+  },
+  {
+    "customer_name": "Globex Manufacturing",
+    "trend": "declining",
+    "test_cases_created_7d": 15,
+    "test_cases_created_30d": 180,
+    "dry_runs_7d": 20,
+    "dry_runs_30d": 290,
+    "active_users_7d": 5,
+    "active_users_30d": 15
+  },
+  {
+    "customer_name": "BrightPath Healthcare",
+    "trend": "stable",
+    "test_cases_created_7d": 76,
+    "test_cases_created_30d": 310,
+    "dry_runs_7d": 115,
+    "dry_runs_30d": 480,
+    "active_users_7d": 27,
+    "active_users_30d": 28
+  },
+  {
+    "customer_name": "Vertex Financial",
+    "trend": "declining",
+    "test_cases_created_7d": 22,
+    "test_cases_created_30d": 250,
+    "dry_runs_7d": 30,
+    "dry_runs_30d": 400,
+    "active_users_7d": 7,
+    "active_users_30d": 22
+  }
+]

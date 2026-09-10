@@ -1,0 +1,32 @@
+[
+  {
+    "customer_name": "Acme Logistics",
+    "health_score": "Red",
+    "reasoning": "Both open cases are High priority and are directly mirrored by two unresolved Jira issues (KAN-4, KAN-5), and usage has dropped sharply — active users down from 18 to 6 and test cases created down to a 7-day pace of 18 versus a 210/30d trend.",
+    "recommended_action": "Escalate KAN-4 and KAN-5 to engineering as top priority, and have CS reach out proactively before usage erodes further."
+  },
+  {
+    "customer_name": "Northwind Retail",
+    "health_score": "Green",
+    "reasoning": "No open support cases, no open Jira issues, and 7-day usage is fully in line with the 30-day trend.",
+    "recommended_action": "No action needed — continue standard quarterly check-ins."
+  },
+  {
+    "customer_name": "Globex Manufacturing",
+    "health_score": "Red",
+    "reasoning": "An Escalated High-priority login-failure case and a second unresolved dashboard bug are both still open in Jira (KAN-6, KAN-7), and usage has fallen sharply — active users down from 15 to 5 over the last 7 days.",
+    "recommended_action": "Treat KAN-7 (login failures) as top engineering priority and have CS communicate a fix timeline to the customer immediately."
+  },
+  {
+    "customer_name": "BrightPath Healthcare",
+    "health_score": "Green",
+    "reasoning": "The only open case is a Low-priority licensing question that's already resolved on the engineering side (KAN-9 is Done), and usage remains stable and in line with the 30-day trend.",
+    "recommended_action": "Close out the seat-count conversation with the customer; no further action needed."
+  },
+  {
+    "customer_name": "Vertex Financial",
+    "health_score": "Red",
+    "reasoning": "The CI/CD integration case (KAN-8) is still untouched in Jira (To Do) while usage has collapsed the most sharply of any account — active users down from 22 to 7 — and renewal lands in under two months (2026-11-02).",
+    "recommended_action": "Prioritize KAN-8 immediately given the near-term renewal date, and have an account exec engage on renewal terms in parallel."
+  }
+]

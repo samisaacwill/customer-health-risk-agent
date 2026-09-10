@@ -1,0 +1,17 @@
+{
+  "Acme Logistics": [
+    {"key": "KAN-5", "summary": "Acme Logistics: Fix nightly test run scheduling", "status": "In Progress", "priority": "Medium"},
+    {"key": "KAN-4", "summary": "Acme Logistics: Investigate API 500 errors on test execution", "status": "To Do", "priority": "Medium"}
+  ],
+  "Northwind Retail": [],
+  "Globex Manufacturing": [
+    {"key": "KAN-7", "summary": "Globex Manufacturing: Resolve login failures (3 users)", "status": "In Progress", "priority": "Medium"},
+    {"key": "KAN-6", "summary": "Globex Manufacturing: Admin dashboard load failure", "status": "To Do", "priority": "Medium"}
+  ],
+  "BrightPath Healthcare": [
+    {"key": "KAN-9", "summary": "BrightPath Healthcare: Confirm seat count with customer", "status": "Done", "priority": "Medium"}
+  ],
+  "Vertex Financial": [
+    {"key": "KAN-8", "summary": "Vertex Financial: CI/CD integration broken post-update", "status": "To Do", "priority": "Medium"}
+  ]
+}
