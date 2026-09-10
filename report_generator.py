@@ -111,6 +111,23 @@ def generate_report(results: list) -> str:
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script>
+// GitHub Pages serves this file with Cache-Control: max-age=600, so a plain
+// revisit within 10 minutes of the last load can show a stale cached copy
+// even though the published file has changed. Self-redirect to a
+// cache-busted URL (once) so every load of the plain URL guarantees fresh
+// content without the visitor needing to hard-refresh or add ?params.
+(function () {{
+  var params = new URLSearchParams(window.location.search);
+  if (!params.has("_cb")) {{
+    params.set("_cb", Date.now());
+    window.location.replace(window.location.pathname + "?" + params.toString());
+  }}
+}})();
+</script>
 <title>Customer Health & Risk Report</title>
 <style>
   body {{
