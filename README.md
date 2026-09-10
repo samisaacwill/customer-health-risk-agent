@@ -125,7 +125,11 @@ uses that flow with a stored refresh token:
 8. Run `python scripts/sf_oauth_authorize.py url`, open the printed URL in your browser, log in, and approve.
 9. Copy the `code=` value from the redirect URL and run `python scripts/sf_oauth_authorize.py exchange <code>` — this writes `SF_REFRESH_TOKEN` into `.env`.
 
-**This org also rotates the refresh token on every use** — Salesforce returns a brand-new `refresh_token` on every `refresh_token` grant call and invalidates the old one. `salesforce_client.py` captures the rotated token and rewrites `SF_REFRESH_TOKEN` in `.env` automatically for local runs. For the GitHub Actions workflow (no `.env` file there), it goes further: `scripts/refresh_salesforce_data.py` exposes the rotated token via `$GITHUB_OUTPUT`, and a workflow step updates the `SF_REFRESH_TOKEN` *secret* using a separate fine-grained PAT (`GH_SECRETS_PAT`, scoped to just this repo's Secrets: read/write — the default `GITHUB_TOKEN` can't modify secrets). Without that PAT secret, the workflow's Salesforce refresh works exactly once after each manual re-authorization and then silently falls back to the committed `accounts_data.json` until you re-run `sf_oauth_authorize.py` and update the secret by hand.
+**This org also rotates the refresh token on every use** — Salesforce returns a brand-new `refresh_token` on every `refresh_token` grant call and invalidates the old one. `salesforce_client.py` captures the rotated token and rewrites `SF_REFRESH_TOKEN` in `.env` automatically, so local runs (`scripts/refresh_salesforce_data.py`, `scripts/test_salesforce.py`, etc.) keep working indefinitely without re-authorizing.
+
+The GitHub Actions workflow has no `.env` file to persist a rotated token into, so its Salesforce refresh works **exactly once** per manual re-authorization, then falls back to the committed `accounts_data.json` (the rest of the pipeline — Jira refresh, scoring, rendering, email — is unaffected). To pull fresh Salesforce data into a CI run: repeat steps 8–9 above, then update the `SF_REFRESH_TOKEN` GitHub secret (Settings → Secrets and variables → Actions) with the new value from `.env`.
+
+(A fully self-healing version is possible — have the workflow write the rotated token back to the secret itself — but that needs a separate PAT scoped to this repo's Secrets: read/write, since the default `GITHUB_TOKEN` can't modify secrets. Not currently wired up.)
 
 ## Running it
 
