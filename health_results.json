@@ -7,9 +7,9 @@
   },
   {
     "customer_name": "Northwind Retail",
-    "health_score": "Red",
-    "reasoning": "68 test cases created in the last 7 days (21+ range); 1 open high/urgent-priority jira ticket(s) - automatic escalation.",
-    "recommended_action": "Escalate to CS leadership and get an executive check-in on the calendar before renewal."
+    "health_score": "Green",
+    "reasoning": "68 test cases created in the last 7 days (21+ range).",
+    "recommended_action": "No action needed beyond the standard quarterly check-in."
   },
   {
     "customer_name": "BrightPath Healthcare",
